@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "ai-werewolf"
+version = "0.1.0"
+description = ""
+authors = ["antoninduval <antonin@im-vitro.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+langchain = "^0.3.8"
+chatgpt = "^2.2212.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
