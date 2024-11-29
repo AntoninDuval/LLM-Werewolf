@@ -1,20 +1,22 @@
+import time
 
 class Chat:
 
     def __init__(self) -> None:
         self.history = []
     
-    def add_message(self, player_name, text, state, recipients=None):
-        content = f"{player_name} : {text} /n"
+    def add_message(self, player_name, text, state=None, recipients=None):
+        content = f"{player_name} : {text}"
 
         self.history.append({
             "sender": player_name,
             "content": content,
             "recipients": recipients,
-            "phase": state,
+            #"phase": state,
         })
 
         print(content)
+        time.sleep(0.5)
 
     def get_all_messages(self):
         """Return all messages in the chat."""

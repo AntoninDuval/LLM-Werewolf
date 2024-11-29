@@ -1,10 +1,6 @@
-from src.player.ai_player import AIPlayer
-from src.player.human_player import HumanPlayer
-from random import shuffle
-from phases import DayPhase, NightPhase
-from chat import Chat
 
-# Class for tracking the state of the game
+from random import shuffle
+from game.chat import Chat
 
 class GameState:
     def __init__(self):
@@ -13,19 +9,9 @@ class GameState:
         self.dead_players = []
         self.winner = None
         self.game_over = False
-        self.current_phase = DayPhase(self)
-        self.n_day = 0
+        self.current_phase = None
+        self.day = 0
         self.chat = Chat()
-
-    def run(self):
-        
-        self.current_phase.execute()
-
-        if self.current_phase == DayPhase:
-            self.current_phase = NightPhase(self.get_state())
-        else:
-            self.current_phase = DayPhase(self.get_state())
-
 
 
     def add_player(self, player):
@@ -48,6 +34,11 @@ class GameState:
             "dead_players": [p.name for p in self.dead_players],
             "current_phase": self.current_phase,
         }
+    
+    def get_alive_role(self, role):
+        list_alive = [player for player in self.players if player.role == role]
+        return list_alive
+
 
     def check_victory(self):
         mafia_count = sum(1 for p in self.alive_players if p.role == "Werewolf")
