@@ -5,11 +5,12 @@ class Chat:
     def __init__(self) -> None:
         self.history = []
     
-    def add_message(self, player_name, text, state=None, recipients=None):
-        content = f"{player_name} : {text}"
+    def add_message_p2p(self, sender, text, day: int, recipients=None):
+        content = f"[Day {day}] {sender} : {text}"
 
         self.history.append({
-            "sender": player_name,
+            "day": day,
+            "sender": sender,
             "content": content,
             "recipients": recipients,
             #"phase": state,
@@ -18,9 +19,13 @@ class Chat:
         print(content)
         time.sleep(0.5)
 
+    def game_message_2p(self, text, recipients=None):
+        print(text)
+
     def get_all_messages(self):
         """Return all messages in the chat."""
         return self.messages
+    
     
     def summarize(self, limit=5):
         """
@@ -28,9 +33,11 @@ class Chat:
         
         :param limit: The number of recent messages to include in the summary.
         """
-        recent_messages = self.messages[-limit:]
+        recent_messages = self.history[-limit:]
+
+
         summary = "\n".join(
-            f"[{msg['phase']}] {msg['sender']}: {msg['content']}"
+            f"{msg['content']}"
             for msg in recent_messages
         )
         return summary if summary else "No messages yet."

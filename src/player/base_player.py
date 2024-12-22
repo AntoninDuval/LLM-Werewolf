@@ -1,8 +1,7 @@
-from game.roles import Role
 from abc import ABC, abstractmethod
 
 class Player(ABC):
-    def __init__(self, name, role: Role):
+    def __init__(self, name, role):
         self.name = name
         self.role = role
         self.alive = True
@@ -12,7 +11,7 @@ class Player(ABC):
         raise NotImplemented
 
     @abstractmethod
-    def write_message():
+    def get_message_player(self, state_summary: dict):
         raise NotImplemented
     
 

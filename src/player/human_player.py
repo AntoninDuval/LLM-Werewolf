@@ -1,21 +1,21 @@
 from player.base_player import Player
-from game.game_state import GameState
+from utils.chat_utils import clear_input_after_enter
 from typing import List
 
 class HumanPlayer(Player):
 
-    def write_message(self, state: GameState):
-        text = input(f'{self.name}, please write your message...')
-        state.chat.add_message(self.name, text)
-        return state
+    def get_message_player(self, state_summary: dict):
+
+        user_msg = clear_input_after_enter(f'{self.name}, please write your message...')
+
+        return user_msg
     
-    def vote(self, state: GameState, choices: List[Player]) -> Player:
+    def vote(self, choices: List[Player], state_summary : dict) -> Player:
         """"
         Actions where a Player is asked to vote for someone. Can happen during day time for hanging a villager or
         during night time with the werewolves for killing a villager. 
 
         Args:
-            state (GameState): Current state of the Game
             choices (List[Player]): List of players to vote for
 
         Returns:
@@ -25,14 +25,17 @@ class HumanPlayer(Player):
         for idx, player in enumerate(choices):
             print(f'(Game) : Type {idx} for voting for {player}')
 
-        vote_player = -1
-        while vote_player < 0:
+        id_vote_player = -1
+        while id_vote_player < 0:
             try:
-                vote_player = int(input('Type the number for the player you want to vote for'))
+                id_vote_player = int(input('Type the number for the player you want to vote for'))
             except ValueError as e:
                 print('Please, type only a single integer')
         
-        return state.alive_players[vote_player]
+        return choices[id_vote_player]
+    
+    def ask_username(self):
+        self.name = clear_input_after_enter("What is your name ?")
 
     def __repr__(self):
         return f"Player(name={self.name}, role={self.role}, alive={self.alive})"
