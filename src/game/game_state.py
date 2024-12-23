@@ -23,6 +23,7 @@ class GameState:
 
         self.players.append(player)
         self.alive_players.append(player)
+        self.chat.initialize_player(player.name)
 
     def kill_player(self, player):
         """Eliminate a player from the game."""
@@ -62,18 +63,26 @@ class GameState:
         """Return a list of alive players with the given role."""
         return [p for p in self.alive_players if p.role == role]
     
-    def get_summary(self):
+    def get_summary(self, player):
+        """
+        Provide a summary of the game state for a specific player.
+        """
         alive_names = ", ".join([p.name for p in self.alive_players])
         dead_names = ", ".join([p.name for p in self.dead_players])
 
-        latest_chat = self.chat.summarize(5)
+        chat_summary = self.chat.summarize(player)
+
         return (
             f"Game State Summary:\n"
             f"-------------------\n"
             f"Current Phase: {self.current_phase}\n"
             f"Alive Players: {alive_names}\n"
             f"Dead Players: {dead_names}\n"
-            f"Last Messages:\n{latest_chat}\n"
+            f"Chat Summary:\n{chat_summary}\n"
             f"Game Over: {'Yes' if self.game_over else 'No'}\n"
             f"Winner: {self.winner if self.winner else 'TBD'}\n"
         )
+    
+    def increment_day(self):
+        self.day += 1
+        self.chat.day = self.day

@@ -26,19 +26,23 @@ class GameEngine:
         self.setup_game()
 
     def title_screen(self):
-        time.sleep(1.5)
+        #time.sleep(1.5)
         with open('./src/extras/title_screen.txt', 'r') as file:
             for line in file:
                 cprint(line, "red")
-        time.sleep(2)
+        #time.sleep(2)
+
+        # Ask player to press any key to start the game, and delete the line afterwards
+        input("Press any key to start the game...")
+        print(chr(27) + "[2J") # Clear the screen
+
 
     def run(self):
 
         while not self.state.game_over:
             print('='*70)
 
-            self.state.day += 1
-            self.state.chat.day = self.state.day # Track the current day to print in the chat
+            self.state.increment_day()
             
             self.state = self.day_phase.execute(self.state)
 
@@ -50,7 +54,6 @@ class GameEngine:
 
             self.state = self.night_phase.execute(self.state)
             self.state.check_victory()
-            #print(self.state.get_summary())
             time.sleep(5)
 
         print("Game Over. Winner:", self.state.winner)
