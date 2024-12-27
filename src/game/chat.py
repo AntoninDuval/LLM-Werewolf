@@ -9,6 +9,10 @@ class Chat:
         self.current_phase = None
     
     def add_message_p2p(self, sender, text, recipients=None, color=None):
+
+        if text is None: # text can be none when AI decide not to answer
+            return
+        
         content = f"[{self.current_phase} {self.day}] {sender}: {text}"
 
         # Apply bold formatting for Game Master messages

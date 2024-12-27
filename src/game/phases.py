@@ -3,8 +3,11 @@ from player.base_player import Player
 from player.ai_player import RandomAIPlayer
 from player.human_player import HumanPlayer
 import time
-from termcolor import cprint
+import sys
 import threading
+import queue
+
+DEBATE_TIME = 20
 
 class DayPhase:
     def __init__(self):
@@ -16,7 +19,7 @@ class DayPhase:
         state.chat.current_phase = 'Day'
 
         state.chat.add_message_p2p(sender="Game Master", text="Day phase begins.")
-        state.chat.add_message_p2p( sender="Game Master", text=f" This is day n°{state.day}")
+        state.chat.add_message_p2p( sender="Game Master", text=f"This is day n°{state.day}")
 
         state.current_phase = self
 
@@ -33,16 +36,6 @@ class DayPhase:
             state.kill_player(vote_result)
             print(f'Game Master :  {vote_result} was brutally executed by the town..')
         
-        return state
-
-    def debate_phase(self, state):
-        state.chat.add_message_p2p(sender="Game Master", text="Debate phase begins.")
-
-        # Turn-based discussion
-        for player in state.alive_players:
-            state_summary = state.get_summary(player)
-            message = player.get_message_player(state_summary) # AI need context to send message
-            state.chat.add_message_p2p(sender=player, text=message)
         return state
 
     def voting_phase(self, state) -> Player:
@@ -77,37 +70,113 @@ class DayPhase:
         state.chat.add_message_p2p(sender="Game Master", text="Debate phase begins. You have limited time to discuss!")
 
         # Start the timer
-        debate_end_time = time.time() + self.debate_duration
+        debate_end_time = time.time() + DEBATE_TIME
 
-        # Start a thread to collect messages asynchronously
-        input_thread = threading.Thread(target=self.collect_messages, args=(state, debate_end_time))
-        input_thread.daemon = True  # Daemonize the thread so it exits with the program
-        input_thread.start()
+        state = self.collect_messages(state, debate_end_time)
 
-        # Keep track of the timer and show the remaining time
-        while time.time() < debate_end_time:
-            remaining_time = int(debate_end_time - time.time())
-            print(f"Game Master: Debate phase ends in {remaining_time} seconds...", end="\r")
-            time.sleep(1)  # Update every second
-
-        print("\nGame Master: The debate phase has ended! No more messages allowed.")
-        input_thread.join(timeout=1)  # Ensure thread ends after the debate duration
+        return state
         
-    def collect_messages(self, state, debate_end_time):
+    def collect_messages(self, state, debate_end_time, threshold_no_message=10):
         """
         Collect messages from players as long as the debate phase is active.
         """
+        # Queue to store human player messages from input threads
+        message_queue = queue.Queue()
+        # Flag to stop input threads gracefully
+        stop_event = threading.Event()
+        new_message_event = threading.Event()  # Signals when a new message is added
+
+        # Shared timer to track the time since the last message
+        last_message_time = {"time": time.time()}
+        last_message_lock = threading.Lock()
+
+        def handle_human_input(player):
+            """
+            Function to handle non-blocking input for human players.
+            Adds the input message to the queue.
+            """
+            while not stop_event.is_set() and time.time() < debate_end_time:
+                try:
+                    # Prompt the player for input
+                    message = input()
+                    # Clear the input prompt after the player writes
+                    sys.stdout.write("\033[F\033[K")
+                    sys.stdout.flush()
+                    # Add the message to the queue
+                    message_queue.put((player.name, message))
+                    with last_message_lock:
+                        last_message_time["time"] = time.time()
+                except EOFError:
+                    break
+
+        def handle_ai_input(player):
+            """
+            AI player posts a message every X seconds or reacts to a new message.
+            """
+            while not stop_event.is_set() and time.time() < debate_end_time:
+
+                # Wait for either new_message_event or timeout (for periodic posting)
+                new_message_event.wait(timeout=threshold_no_message)
+
+                with last_message_lock:
+                    current_time = time.time()
+                    # Post a new AI message if enough time has passed since the last message
+                    if current_time - last_message_time["time"] >= threshold_no_message:
+                        ai_message = player.get_message_player(state.get_summary(player))
+                        message_queue.put((player.name, ai_message))
+                        last_message_time["time"] = time.time()
+
+                    else:
+                        # React to the new message (immediate response)
+                        ai_message = player.get_message_player(state.get_summary(player))
+                        message_queue.put((player.name, ai_message))
+
+                new_message_event.clear()  # Reset the event for future triggers
+                time.sleep(1)  # Check every second
+
+        # Start threads for players
+        threads = []
+        for player in state.alive_players:
+            if isinstance(player, HumanPlayer):
+                thread = threading.Thread(target=handle_human_input, args=(player,))
+                thread.daemon = True  # Ensure the thread stops when the program ends
+                threads.append(thread)
+                thread.start()
+
+            elif isinstance(player, RandomAIPlayer):
+                thread = threading.Thread(target=handle_ai_input, args=(player,))
+                thread.daemon = True
+                threads.append(thread)
+                thread.start()
+
+        last_printed_warning = None  # Keep track of the last second printed
+
+        # Main loop for processing messages
         while time.time() < debate_end_time:
-            for player in state.alive_players:
-                if isinstance(player, HumanPlayer):
-                    # Non-blocking input for human players
-                    message = input(f"{player.name}, write your message: ")
-                    state.chat.add_message_p2p(player.name, message)
-                elif isinstance(player, RandomAIPlayer):
-                    # Generate an AI message
-                    ai_message = player.get_message_player(state.get_summary())
-                    state.chat.add_message_p2p(player.name, ai_message)
-                    time.sleep(1)  # Simulate delay for AI
+
+            try:
+                player_name, message = message_queue.get(timeout=0.1)
+                state.chat.add_message_p2p(player_name, message)
+                new_message_event.set()  # Signal that the message has been processed
+            except queue.Empty:
+                pass
+
+            remaining_time = int(debate_end_time - time.time())
+
+            if remaining_time < 10 and remaining_time != last_printed_warning:
+                print(f"Game Master: Debate phase ends in {remaining_time} seconds...", end="\r")
+                last_printed_warning = remaining_time  # Update the last remaining time
+
+        # Simulate a short delay to avoid busy looping
+        time.sleep(0.1)
+
+        # Signal threads to stop and wait for them to terminate
+        stop_event.set()
+        for thread in threads:
+            thread.join(timeout=1)
+
+        print("Message collection has ended.")
+        return state
 
     def __str__(self):
         return 'Day'

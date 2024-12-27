@@ -26,14 +26,14 @@ class GameEngine:
         self.setup_game()
 
     def title_screen(self):
-        #time.sleep(1.5)
+        time.sleep(1.5)
         with open('./src/extras/title_screen.txt', 'r') as file:
             for line in file:
                 cprint(line, "red")
-        #time.sleep(2)
+        time.sleep(2)
 
-        # Ask player to press any key to start the game, and delete the line afterwards
-        input("Press any key to start the game...")
+        # Ask player to press Enter to start the game, and delete the line afterwards
+        input("Press Enter to start the game...")
         print(chr(27) + "[2J") # Clear the screen
 
 

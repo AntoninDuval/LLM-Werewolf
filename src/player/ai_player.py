@@ -3,13 +3,18 @@ from player.base_player import Player
 from random import choice, randint
 from faker import Faker
 from typing import List
+import random
 import time
 
 class RandomAIPlayer(Player):
 
     def get_message_player(self, state_summary : dict):
 
-        user_msg = self.generate_random_sentence(10)
+        # Get a probability to answer
+        if random.random() > 0.3: # 1/2
+            user_msg = self.generate_random_sentence(10)
+        else:
+            return None
 
         return user_msg
     

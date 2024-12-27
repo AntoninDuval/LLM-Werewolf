@@ -18,8 +18,8 @@ class GameState:
     def add_player(self, player):
         """Add a new player to the game."""
 
-        # if type(player) == HumanPlayer:
-        #     player.ask_username()
+        if type(player) == HumanPlayer:
+            player.ask_username()
 
         self.players.append(player)
         self.alive_players.append(player)
