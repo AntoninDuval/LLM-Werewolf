@@ -1,7 +1,6 @@
 from random import shuffle
 from game.chat import Chat
-from player.human_player import HumanPlayer
-from player.ai_player import RandomAIPlayer
+
 
 class GameState:
     def __init__(self):
@@ -18,8 +17,8 @@ class GameState:
     def add_player(self, player):
         """Add a new player to the game."""
 
-        if type(player) == HumanPlayer:
-            player.ask_username()
+        # if type(player) == HumanPlayer:
+        #     player.ask_username()
 
         self.players.append(player)
         self.alive_players.append(player)
@@ -70,18 +69,19 @@ class GameState:
         alive_names = ", ".join([p.name for p in self.alive_players])
         dead_names = ", ".join([p.name for p in self.dead_players])
 
-        chat_summary = self.chat.summarize(player)
+        # Get the last 15 messages in the chat history of this player
+        chat_summary = self.chat.get_chat_history_player(player.name, limit=15)
 
-        return (
-            f"Game State Summary:\n"
-            f"-------------------\n"
-            f"Current Phase: {self.current_phase}\n"
-            f"Alive Players: {alive_names}\n"
-            f"Dead Players: {dead_names}\n"
-            f"Chat Summary:\n{chat_summary}\n"
-            f"Game Over: {'Yes' if self.game_over else 'No'}\n"
-            f"Winner: {self.winner if self.winner else 'TBD'}\n"
-        )
+        # Return a dictionary with the game state summary
+        return {
+            "current_phase": self.current_phase,
+            "current_day": self.day,
+            "alive_players": alive_names,
+            "dead_players": dead_names,
+            "chat_history": chat_summary,
+            "game_over": self.game_over,
+            "winner": self.winner,
+        }
     
     def increment_day(self):
         self.day += 1
