@@ -5,6 +5,7 @@ import threading
 import queue
 from player.human_player import HumanPlayer
 from player.ai_player import RandomAIPlayer
+import random
 
 class Chat:
 
@@ -93,6 +94,7 @@ class Chat:
                 # Wait for either new_message_event or timeout (for periodic posting)
                 new_message_event.wait(timeout=threshold_no_message)
 
+                time.sleep(random.randint(1, 3))  # Simulate thinking time between 1 and 3 seconds
                 with last_message_lock:
                     current_time = time.time()
                     # Post a new AI message if enough time has passed since the last message

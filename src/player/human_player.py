@@ -46,7 +46,7 @@ class HumanPlayer(Player):
         sys.stdout.flush()
         
     def ask_username(self):
-        self.name = clear_input_after_enter("What is your name ?")
+        self.name = clear_input_after_enter("What is your name ? ")
 
     def __repr__(self):
         return f"Player(name={self.name}, role={self.role}, alive={self.alive})"

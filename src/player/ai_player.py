@@ -6,10 +6,14 @@ from typing import List
 import random
 import time
 
+NAMES = ["John", "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah", "Ivan", "Julia", "Kevin", "Laura", "Michael", "Nina", "Oscar", "Paul", "Quentin", "Rachel", "Steve", "Tina", "Ursula", "Victor", "Wendy", "Xavier", "Yvonne", "Zack"]
+
 class RandomAIPlayer(Player):
 
     def __init__(self, name, role):
         super().__init__(name, role)
+
+        self.name = choice(NAMES)
         
         # Set a random number between 0 and 0.5 to determine the frequency of the AI to speak
         self.frequency_speak = random.random() * 0.5

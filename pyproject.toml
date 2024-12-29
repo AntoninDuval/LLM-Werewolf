@@ -11,6 +11,8 @@ langchain = "^0.3.8"
 chatgpt = "^2.2212.0"
 faker = "^33.1.0"
 termcolor = "^2.5.0"
+openai = "^1.58.1"
+transformers = "^4.47.1"
 
 
 [build-system]

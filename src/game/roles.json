@@ -3,7 +3,7 @@
                     "introduction_msg_color": "red"
     },
     "Villager" : {"introduction_msg" : "You are a Villager ! Try to survive and kill the werewolves during the day. Otherwise, you'll die ! Good luck",
-                "introduction_msg_color": "blue"
+                "introduction_msg_color": "light_blue"
     }
 
 }

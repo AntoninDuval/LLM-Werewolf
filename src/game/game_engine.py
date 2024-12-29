@@ -38,7 +38,7 @@ class GameEngine:
 
 
     def run(self):
-
+        
         while not self.state.game_over:
             print('='*70)
 
@@ -47,6 +47,9 @@ class GameEngine:
             self.state = self.day_phase.execute(self.state)
 
             self.state.check_victory()
+
+            if self.state.game_over:
+                break
 
             print('='*70)
 
@@ -75,4 +78,12 @@ class GameEngine:
                 player = RandomAIPlayer(name=name, role=role)
                 self.state.add_player(player)
 
+        # Notice the werewolves who are their allies
+        werewolves = self.state.get_alive_role('Werewolf')
+        self.state.chat.add_message_p2p("Game Master", 
+                                        "Werewolf, your allies are " + str([werewolf.name for werewolf in werewolves]), 
+                                        recipients=werewolves)
+        for werewolf in werewolves:
+            werewolf.allies = werewolves
+            
             

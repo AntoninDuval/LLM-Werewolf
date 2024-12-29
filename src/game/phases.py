@@ -29,11 +29,13 @@ class DayPhase:
         # Debate phase
         state = self.debate_phase(state)
 
+        state.chat.add_message_p2p( sender="Game Master", text=f"Your time to vote ! Decide who will be executed. Choose wisely...")
+
         state, vote_result = self.voting_phase(state)
 
         if vote_result != None:
+            state.chat.add_message_p2p("Game Master", f"{vote_result} was brutally executed by the town...")
             state.kill_player(vote_result)
-            print(f'Game Master :  {vote_result} was brutally executed by the town..')
         
         return state
 
@@ -49,7 +51,7 @@ class DayPhase:
             vote = current_player.vote(choices, state.get_summary(current_player))  # Players decide whom to vote for
             if vote in votes:
                 votes[vote] += 1
-            state.chat.add_message_p2p('Game Master', f'Player {current_player} voted for {vote} !')
+            state.chat.add_message_p2p('Game Master', f'{current_player} voted for {vote} !')
 
         # Determine player with most votes
         most_voted = max(votes, key=votes.get)
@@ -102,10 +104,10 @@ class NightPhase:
         state, most_voted = self.werewolf_vote(state)
 
         if most_voted != None:
-            state.kill_player(most_voted)
             state.chat.add_message_p2p("Game Master", 
                                    f"{most_voted} was brutally murdered in his sleep...",
                                    color='red')
+            state.kill_player(most_voted)
 
         return state
     
