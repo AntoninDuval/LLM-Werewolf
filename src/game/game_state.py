@@ -13,6 +13,7 @@ class GameState:
         self.current_phase = None
         self.day = 0
         self.chat = Chat()
+        self.remaining_debate_time = 0
 
 
     def add_player(self, player):
@@ -74,7 +75,7 @@ class GameState:
         dead_names = ", ".join([p.name for p in self.dead_players])
 
         # Get the last 15 messages in the chat history of this player
-        chat_summary = self.chat.get_chat_history_player(player.name, limit=15)
+        chat_summary = self.chat.get_chat_history_player(player.name, limit=30)
 
         # Return a dictionary with the game state summary
         return {
@@ -83,6 +84,7 @@ class GameState:
             "alive_players": alive_names,
             "dead_players": dead_names,
             "chat_history": chat_summary,
+            "remaining_debate_time": self.remaining_debate_time,
             "game_over": self.game_over,
             "winner": self.winner,
         }

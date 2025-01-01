@@ -94,22 +94,23 @@ class Chat:
                 # Wait for either new_message_event or timeout (for periodic posting)
                 new_message_event.wait(timeout=threshold_no_message)
 
-                time.sleep(random.randint(1, 3))  # Simulate thinking time between 1 and 3 seconds
+                time.sleep(random.randint(7, 10))  # Simulate thinking time between
                 with last_message_lock:
                     current_time = time.time()
                     # Post a new AI message if enough time has passed since the last message
                     if current_time - last_message_time["time"] >= threshold_no_message:
                         ai_message = player.get_message_player(state.get_summary(player))
-                        message_queue.put((player.name, ai_message))
                         last_message_time["time"] = time.time()
 
                     else:
                         # React to the new message (immediate response)
                         ai_message = player.get_message_player(state.get_summary(player))
+                    
+                    if ai_message != "":
                         message_queue.put((player.name, ai_message))
 
                 new_message_event.clear()  # Reset the event for future triggers
-                time.sleep(3)  # Wait Xs after sending a message to avoid spamming the chat
+                time.sleep(5)  # Wait Xs after sending a message to avoid spamming the chat
 
         # Start threads for players
         threads = []
@@ -131,6 +132,9 @@ class Chat:
 
         # Main loop for processing messages
         while time.time() < debate_end_time:
+            
+            remaining_time = int(debate_end_time - time.time())
+            state.remaining_debate_time = remaining_time
 
             try:
                 player_name, message = message_queue.get(timeout=0.1)
@@ -139,7 +143,6 @@ class Chat:
             except queue.Empty:
                 pass
 
-            remaining_time = int(debate_end_time - time.time())
 
             # Print a warning message if the time is running out
             if remaining_time < 10 and remaining_time != last_printed_warning:

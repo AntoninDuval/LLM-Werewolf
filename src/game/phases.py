@@ -51,7 +51,7 @@ class DayPhase:
             vote = current_player.vote(choices, state.get_summary(current_player))  # Players decide whom to vote for
             if vote in votes:
                 votes[vote] += 1
-            state.chat.add_message_p2p('Game Master', f'{current_player} voted for {vote} !')
+            state.chat.add_message_p2p('Game Master', f'{current_player} voted for {vote.name} !')
 
         # Determine player with most votes
         most_voted = max(votes, key=votes.get)

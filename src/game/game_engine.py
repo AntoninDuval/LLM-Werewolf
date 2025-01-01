@@ -1,6 +1,8 @@
 from game.game_state import GameState
 from game.phases import DayPhase, NightPhase
 from player.ai_player import RandomAIPlayer
+from player.llm_player import LLMPlayer
+from llm.llm_handler import LangChainHandler
 from termcolor import cprint
 from player.human_player import HumanPlayer
 from random import shuffle
@@ -75,7 +77,10 @@ class GameEngine:
                 cprint(self.roles_txt[role]["introduction_msg"], 
                     self.roles_txt[role]["introduction_msg_color"])
             elif type_player == 'AI':
-                player = RandomAIPlayer(name=name, role=role)
+                player = LLMPlayer(name=name, 
+                                   role=role,
+                                   llm_handler=LangChainHandler(model="gpt-4o",
+                                                                api_key=""))
                 self.state.add_player(player)
 
         # Notice the werewolves who are their allies
