@@ -1,4 +1,3 @@
-
 from player.base_player import Player
 from random import choice, randint
 from faker import Faker
@@ -6,7 +5,36 @@ from typing import List
 import random
 import time
 
-NAMES = ["John", "Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hannah", "Ivan", "Julia", "Kevin", "Laura", "Michael", "Nina", "Oscar", "Paul", "Quentin", "Rachel", "Steve", "Tina", "Ursula", "Victor", "Wendy", "Xavier", "Yvonne", "Zack"]
+NAMES = [
+    "John",
+    "Alice",
+    "Bob",
+    "Charlie",
+    "David",
+    "Eve",
+    "Frank",
+    "Grace",
+    "Hannah",
+    "Ivan",
+    "Julia",
+    "Kevin",
+    "Laura",
+    "Michael",
+    "Nina",
+    "Oscar",
+    "Paul",
+    "Quentin",
+    "Rachel",
+    "Steve",
+    "Tina",
+    "Ursula",
+    "Victor",
+    "Wendy",
+    "Xavier",
+    "Yvonne",
+    "Zack",
+]
+
 
 class RandomAIPlayer(Player):
 
@@ -14,43 +42,48 @@ class RandomAIPlayer(Player):
         super().__init__(name, role)
 
         self.name = choice(NAMES)
-        
+
         # Set a random number between 0 and 0.5 to determine the frequency of the AI to speak
         self.frequency_speak = random.random() * 0.5
 
-    def get_message_player(self, state_summary : dict):
+    def get_message_player(self, state_summary: dict):
 
-        message_history_current_phase = self.parse_chat_history(state_summary['chat_history'], 
-                                                                phase=state_summary['current_phase'], 
-                                                                day=state_summary['current_day'])
-        
+        message_history_current_phase = self.parse_chat_history(
+            state_summary["chat_history"],
+            phase=state_summary["current_phase"],
+            day=state_summary["current_day"],
+        )
+
         # Get 1st word for last message from the chat
-        first_word_last_message = message_history_current_phase[-1].split()[0] if message_history_current_phase else None
+        first_word_last_message = (
+            message_history_current_phase[-1].split()[0]
+            if message_history_current_phase
+            else None
+        )
 
         # Get a probability to answer
         if random.random() > self.frequency_speak:
             user_msg = self.generate_random_sentence(1)
         else:
             return None
-        
+
         # Add last message seen for debugging
         user_msg += f' (1st word last message seen : "{first_word_last_message}")'
 
         return user_msg
-    
-    def vote(self, choices: List[Player], state_summary : dict) -> Player:
+
+    def vote(self, choices: List[Player], state_summary: dict) -> Player:
 
         # Make a random vote after waiting for a random amount of time.
         voted_player = choice(choices)
         time.sleep(0.2)
         return voted_player
 
-    
     def generate_random_sentence(self, word_count):
         fake = Faker()
         sentence = " ".join(fake.words(nb=word_count))
         return sentence
-    
+
     def parse_chat_history(self, chat_history, phase, day):
         """Parse the chat history to extract information."""
         # Example of a chat history
@@ -58,6 +91,11 @@ class RandomAIPlayer(Player):
 
         # Extract the messages from the chat history that are not from the Game Master
         # And from the same phase and day as asked
-        messages = [msg['text'] for msg in chat_history if msg['sender'] != 'Game Master' and msg['phase'] == phase and msg['day'] == day]
+        messages = [
+            msg["text"]
+            for msg in chat_history
+            if msg["sender"] != "Game Master"
+            and msg["phase"] == phase
+            and msg["day"] == day
+        ]
         return messages
-    

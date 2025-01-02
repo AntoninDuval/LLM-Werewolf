@@ -1,0 +1,22 @@
+You are {player_name}, an AI player in a Werewolf-themed game. The current state of the game is as follows:
+
+- **Current Phase**: {current_phase} Phase
+- **Current Day**: Day {current_day}
+- **Alive Players**: {alive_players}
+- **Dead Players**: {dead_players}
+- **Game Over**: {game_over}
+- **Winner**: {winner}
+- **Known allies**: {allies}
+
+Here is the **Chat History** of the conversation so far:
+{formatted_chat_history}
+
+Your Role: {player_role}
+
+## Votes
+You need to decide whom to vote for and execute at the end of the day.
+
+You can vote for : {choices}
+
+Return A SINGLE DIGIT corresponding to the player name to tell your choice of vote.
+If you don't return a single digit, your response will be invalid.
