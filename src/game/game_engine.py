@@ -8,6 +8,7 @@ from player.human_player import HumanPlayer
 from random import shuffle
 import time
 import json
+import random
 from dotenv import load_dotenv
 import os
 
@@ -42,6 +43,10 @@ class GameEngine:
 
         with open("./src/game/roles.json") as file:
             self.roles_txt = json.load(file)
+
+        # Load the personalities of the LLM AI players
+        with open("./src/extras/personality_traits.json") as file:
+            self.personalities = json.load(file)
 
         self.setup_game()
 
@@ -102,26 +107,33 @@ class GameEngine:
                 )
 
             elif type_player == "AI":
+                # Pick a random personality of the dict and remove it
+                personality = self.personalities.pop(
+                    random.choice(list(self.personalities.keys()))
+                )
                 player = LLMPlayer(
                     name=name,
                     role=role,
                     llm_handler=LangChainHandler(
                         model=self.llm_model, api_key=openai_api_key
                     ),
+                    strategy=self.roles_txt[role]["strategy"],
+                    personality=personality[role],
                 )
                 self.state.add_player(player)
 
         time.sleep(3)
         # Notice the werewolves who are their allies
         werewolves = self.state.get_alive_role("Werewolf")
-        self.state.chat.add_message_p2p(
-            "Game Master",
-            "Werewolf, your allies are "
-            + str([werewolf.name for werewolf in werewolves]),
-            recipients=werewolves,
-        )
+        
         for werewolf in werewolves:
-            werewolf.update_allies(
-                [player for player in werewolves if player != werewolf]
+            allies =  [player.name for player in werewolves if player != werewolf]
+            werewolf.update_allies(allies)
+            self.state.chat.add_message_p2p(
+            "Game Master",
+            "Werewolf, you are allied with "
+            + str(allies),
+            recipients=[werewolf],
             )
+            
         time.sleep(1)

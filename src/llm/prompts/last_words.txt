@@ -17,14 +17,8 @@ Here is the **Chat History** of the conversation so far:
 
 {answer_strategy}
 
-## Your Strategy
-- {strategy}
-
 ## Rules for Your Response:
-Make short sentences.
-Compose a single message for the current discussion phase. Be brief (only 1 sentence).
-
-ONLY SPEAK IF YOU THINK YOU CAN ADD SOMETHING VALUABLE TO THE CONVERSATION.
+Compose a single message for your last words before being executed by the town.
 If you decide to wait silently, return the token "WAITING".
 
 The debate ends in {remaining_debate_time} seconds.

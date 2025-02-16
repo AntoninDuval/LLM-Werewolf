@@ -1,9 +1,10 @@
 {
     "Werewolf" : { "introduction_msg" : "You are a Werewolf ! Your goal is to kill every villager in this town. Be quiet, be sneaky. Good luck",
-                    "introduction_msg_color": "red"
+                    "introduction_msg_color": "red",
+                    "strategy": "As a werewolf, your goal is to deflect suspicion and subtly manipulate the conversation to accuse innocent villagers. Refer to the current voting patterns and history to frame your arguments. Don't overplay your hand—be subtle."
     },
     "Villager" : {"introduction_msg" : "You are a Villager ! Try to survive and kill the werewolves during the day. Otherwise, you'll die ! Good luck",
-                "introduction_msg_color": "light_blue"
+                "introduction_msg_color": "light_blue",
+                "strategy": "As a villager, your goal is to identify the werewolves and vote to eliminate them. Pay attention to the conversation and voting patterns to identify suspicious behavior. Be cautious of players who are overly aggressive or defensive."
     }
-
 }

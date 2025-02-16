@@ -97,9 +97,9 @@ class Chat:
             while not stop_event.is_set() and time.time() < debate_end_time:
 
                 # Wait for either new_message_event or timeout (for periodic posting)
-                new_message_event.wait(timeout=threshold_no_message)
+                new_message_event.wait()
 
-                time.sleep(random.randint(7, 10))  # Simulate thinking time between
+                time.sleep(random.randint(5, 20))  # Simulate thinking time
                 with last_message_lock:
                     current_time = time.time()
                     # Post a new AI message if enough time has passed since the last message
@@ -119,9 +119,7 @@ class Chat:
                         message_queue.put((player.name, ai_message))
 
                 new_message_event.clear()  # Reset the event for future triggers
-                time.sleep(
-                    5
-                )  # Wait Xs after sending a message to avoid spamming the chat
+                time.sleep(5)  # Wait Xs after sending a message
 
         # Start threads for players
         threads = []
@@ -144,6 +142,8 @@ class Chat:
             thread.start()
 
         last_printed_warning = None  # Keep track of the last second printed
+
+        message_queue.put(("Game Master", 'You can start discussing now!'))
 
         # Main loop for processing messages
         while time.time() < debate_end_time:
@@ -174,7 +174,7 @@ class Chat:
         # Signal threads to stop and wait for them to terminate
         stop_event.set()
         for thread in threads:
-            thread.join(timeout=1)
+            thread.join(timeout=2)
 
         print("Message collection has ended.")
         return state

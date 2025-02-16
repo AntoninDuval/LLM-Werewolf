@@ -72,6 +72,13 @@ class DayPhase:
             "Game Master",
             f"Sentenced player is {most_voted} with {votes[most_voted]} votes.",
         )
+        state.chat.add_message_p2p(
+            "Game Master",
+            f"{most_voted}, you can share your last words with the town. Make it count !",
+        )
+        time.sleep(5)
+        state.chat.add_message_p2p(most_voted, most_voted.last_words(state.get_summary(most_voted)))
+        time.sleep(3)
         return state, most_voted
 
     def debate_phase(self, state, debate_time=50):
